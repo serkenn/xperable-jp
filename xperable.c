@@ -130,12 +130,12 @@ static int set_xperable_target(const char *blver)
     for (i = 0; yoshino_abl_targets[i].ablver != NULL; i++)
         if (strstr(blver, yoshino_abl_targets[i].ablver) != NULL) {
             target = &yoshino_abl_targets[i];
-            PDBG("Using %s xperable target (offset = 0x%x, size = 0x%x)\n",
+            PDBG("%s xperableターゲットを使用 (offset = 0x%x, size = 0x%x)\n",
                  target->ytname, target->offset, target->size);
             return 0;
         }
     target = &yoshino_abl_targets[i];
-    PERR("%s version not supported!\n", blver);
+    PERR("%s バージョンはサポートされていません!\n", blver);
     return -1;
 }
 
@@ -190,9 +190,9 @@ static int getvar_all(struct fbusb *dev)
     }
     if (res != FASTBOOT_OKAY) {
         if (res > 0)
-            PERR("getvar all failed: %s\n", rxbuff);
+            PERR("getvar all 失敗: %s\n", rxbuff);
         else
-            PERR("getvar all protocol error, res=%d\n", res);
+            PERR("getvar all プロトコルエラー, res=%d\n", res);
     }
     return res;
 }
@@ -226,7 +226,7 @@ static int test0(struct fbusb *dev, int size, int offset, const char *cmd)
     else
         snprintf(txbuff, 64, "download:%08x", 16);
 
-    PNFO("Starting test0 size = 0x%08x, offset = 0x%08x, cmd = '%s'\n",
+    PNFO("test0 開始 size = 0x%08x, offset = 0x%08x, cmd = '%s'\n",
            size, offset, txbuff);
     PNFO_CONT("  %08x-%08x: [ %02x %02x %02x %02x ]\n", 0, offset - 4,
               txbuff[offset - 4 + 0], txbuff[offset - 4 + 1],
@@ -250,7 +250,7 @@ static int test0(struct fbusb *dev, int size, int offset, const char *cmd)
         res = fbusb_bufcmd(dev, txbuff, size, rxbuff, &i);
     }
 
-    PDBG("Finished test0: res = %d\n", res);
+    PDBG("test0 完了: res = %d\n", res);
     return res < 0 ? 0 : -1;
 }
 
@@ -264,7 +264,7 @@ static int test1(struct fbusb *dev, int size, int offset, const char *cmd)
     else
         snprintf(txbuff, 64, "download:%08x", size);
 
-    PNFO("Starting test1 size = 0x%08x, offset = 0x%08x, cmd = '%s'\n",
+    PNFO("test1 開始 size = 0x%08x, offset = 0x%08x, cmd = '%s'\n",
            size, offset, txbuff);
 
     res = fbusb_strcmd(dev, txbuff, rxbuff, 65);
@@ -289,7 +289,7 @@ static int test1(struct fbusb *dev, int size, int offset, const char *cmd)
             res = fbusb_strcmd_resp(dev, rxbuff, 65);
     } while (res == FASTBOOT_INFO);
 
-    PDBG("Finished test1: res = %d\n", res);
+    PDBG("test1 完了: res = %d\n", res);
     return res;
 }
 
@@ -300,7 +300,7 @@ static int test2(struct fbusb *dev, int size, int offset, const char *cmd)
     char *p;
 
     if (target->ablver == NULL) {
-        PERR("test2 failed: target not set up\n");
+        PERR("test2 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
@@ -311,7 +311,7 @@ static int test2(struct fbusb *dev, int size, int offset, const char *cmd)
     else
         snprintf(txbuff, 64, "download:%08x", 16);
 
-    PNFO("Starting test2 size = 0x%06x, offset = 0x%02x, cmd = '%s'\n",
+    PNFO("test2 開始 size = 0x%06x, offset = 0x%02x, cmd = '%s'\n",
          size, offset, txbuff);
 
     i = 64;
@@ -328,7 +328,7 @@ static int test2(struct fbusb *dev, int size, int offset, const char *cmd)
         memset(txbuff, 'A', size);
         i = 64;
         res = fbusb_bufcmd(dev, txbuff, size, rxbuff, &i);
-        PNFO("test2 not hit: response = '%s'\n", rxbuff);
+        PNFO("test2 未ヒット: レスポンス = '%s'\n", rxbuff);
         return -1;
     case FASTBOOT_UNKNOWN:
         if (i <= 11 + 11)
@@ -342,7 +342,7 @@ static int test2(struct fbusb *dev, int size, int offset, const char *cmd)
                     if (strncmp(ds + i, p + 1, 11) == 0)
                         break;
                 if (i < 8) {
-                    PNFO("test2 succeeded: distance = 0x%06x + 0x%02x "
+                    PNFO("test2 成功: distance = 0x%06x + 0x%02x "
                          "(offset was 0x%02x)\n", res, (i << 4), offset);
                     return 0;
                 }
@@ -350,7 +350,7 @@ static int test2(struct fbusb *dev, int size, int offset, const char *cmd)
         }
         break;
     }
-    PERR("test2 failed: response = '%s'\n", rxbuff);
+    PERR("test2 失敗: レスポンス = '%s'\n", rxbuff);
     return -1;
 }
 
@@ -361,7 +361,7 @@ static int test3(struct fbusb *dev, int size, int offset, const char *cmd)
     char *p;
 
     if (target->ablver == NULL) {
-        PERR("test3 failed: target not set up\n");
+        PERR("test3 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
@@ -372,7 +372,7 @@ static int test3(struct fbusb *dev, int size, int offset, const char *cmd)
     else
         snprintf(txbuff, 64, "download:%08x", 16);
 
-    PNFO("Starting test3 size = 0x%06x, offset = 0x%02x, cmd = '%s'\n",
+    PNFO("test3 開始 size = 0x%06x, offset = 0x%02x, cmd = '%s'\n",
          size, offset, txbuff);
 
     i = 64;
@@ -389,7 +389,7 @@ static int test3(struct fbusb *dev, int size, int offset, const char *cmd)
         memset(txbuff, 'A', size);
         i = 64;
         res = fbusb_bufcmd(dev, txbuff, size, rxbuff, &i);
-        PNFO("test3 not hit: response = '%s'\n", rxbuff);
+        PNFO("test3 未ヒット: レスポンス = '%s'\n", rxbuff);
         return -1;
     case FASTBOOT_FAIL:
         res = strtoul(rxbuff, &p, 16);
@@ -400,7 +400,7 @@ static int test3(struct fbusb *dev, int size, int offset, const char *cmd)
                 addr += target->test3_hitadj;
                 base -= 0x97ffecddLL + 0x322D8LL;
                 p[0] = '\0';
-                PNFO("test3 succeeded: distance = 0x%06x, hit from 0x%06x, base = 0x%06x "
+                PNFO("test3 成功: distance = 0x%06x, hit from 0x%06x, base = 0x%06x "
                      "(offset=0x%02x size=0x%02x)\n", res, (int)addr, (int)base,
                      offset, size);
                 return 0;
@@ -408,7 +408,7 @@ static int test3(struct fbusb *dev, int size, int offset, const char *cmd)
         }
         break;
     }
-    PERR("test3 failed: response = '%s'\n", rxbuff);
+    PERR("test3 失敗: レスポンス = '%s'\n", rxbuff);
     return -1;
 }
 
@@ -421,7 +421,7 @@ static int test4(struct fbusb *dev, int size, int offset, const char *fname)
     unsigned addr;
 
     if (target->ablver == NULL) {
-        PERR("test4 failed: target not set up\n");
+        PERR("test4 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
@@ -432,7 +432,7 @@ static int test4(struct fbusb *dev, int size, int offset, const char *fname)
 
     target->setup_test4(txbuff, size, offset, payloadsize);
 
-    PNFO("Starting test4 size = 0x%06x, offset = 0x%02x, "
+    PNFO("test4 開始 size = 0x%06x, offset = 0x%02x, "
          "payloadsize = 0x%02x\n", size, offset, payloadsize);
 
     // use +16 to differentiate between success and failure,
@@ -452,7 +452,7 @@ static int test4(struct fbusb *dev, int size, int offset, const char *fname)
     addr = 0;
     if (rxbuff[0] == 0x11) {
         addr = *(uint32_t *)&rxbuff[0] - 0x11111111;
-        PNFO("Got LinuxLoader base addr 0x%08x (0x%08x)\n",
+        PNFO("LinuxLoader ベースアドレス取得 0x%08x (0x%08x)\n",
                addr, addr + 0x11111111);
         add_module_addr("LinuxLoader", addr);
     } else if (sscanf(rxbuff, "%8x", &size) == 1) {
@@ -474,7 +474,7 @@ static int test4(struct fbusb *dev, int size, int offset, const char *fname)
     i = 64;
     res = fbusb_bufcmd(dev, txbuff, payloadsize, rxbuff, &i);
     if (res != FASTBOOT_OKAY) {
-        PERR("LinuxLoader payload send failed\n");
+        PERR("LinuxLoader ペイロード送信失敗\n");
         return -1;
     }
 
@@ -485,13 +485,13 @@ static int test4(struct fbusb *dev, int size, int offset, const char *fname)
         addr = 0;
         offset = 0;
         if (sscanf(rxbuff, "%x/%x", &addr, &offset) == 2) {
-            PNFO("LinuxLoader @ 0x%08x patched successfully "
-                 "(usb buff @ 0x%08x, distance = 0x%08x)\n",
+            PNFO("LinuxLoader @ 0x%08x パッチ適用成功 "
+                 "(USB バッファ @ 0x%08x, distance = 0x%08x)\n",
                  addr, offset, addr - (unsigned)offset);
             return 0;
         }
     }
-    PERR("LinuxLoader patching failed: %s\n", rxbuff);
+    PERR("LinuxLoader パッチ適用失敗: %s\n", rxbuff);
     return -1;
 }
 
@@ -503,7 +503,7 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
     unsigned addr;
 
     if (target->ablver == NULL) {
-        PERR("test5 failed: target not set up\n");
+        PERR("test5 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
@@ -514,7 +514,7 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
 
     target->setup_test5(txbuff, size, offset, payloadsize);
 
-    PNFO("Starting test5 size = 0x%06x, offset = 0x%02x, "
+    PNFO("test5 開始 size = 0x%06x, offset = 0x%02x, "
          "payloadsize = 0x%02x\n", size, offset, payloadsize);
 
     // use +16 to differentiate between success and failure,
@@ -541,7 +541,7 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
     addr = 0;
     if (rxbuff[0] == (target->stage1_cont & 0xff)) {
         addr = *(uint32_t *)&rxbuff[0] - target->stage1_cont;
-        PNFO("Got LinuxLoader base addr 0x%08x (0x%08x)\n",
+        PNFO("LinuxLoader ベースアドレス取得 0x%08x (0x%08x)\n",
                addr, addr + target->stage1_cont);
         add_module_addr("LinuxLoader", addr);
     } else if (sscanf(rxbuff, "%8x", &size) == 1) {
@@ -563,7 +563,7 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
     i = 64;
     res = fbusb_bufcmd(dev, txbuff, payloadsize, rxbuff, &i);
     if (res != FASTBOOT_OKAY) {
-        PERR("LinuxLoader payload send failed\n");
+        PERR("LinuxLoader ペイロード送信失敗\n");
         return -1;
     }
 
@@ -579,8 +579,8 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
         addr = 0;
         offset = 0;
         if (sscanf(rxbuff, "%x/%x", &addr, &offset) == 2) {
-            PNFO("LinuxLoader @ 0x%08x patched successfully "
-                 "(usb buff @ 0x%08x, distance = 0x%08x)\n",
+            PNFO("LinuxLoader @ 0x%08x パッチ適用成功 "
+                 "(USB バッファ @ 0x%08x, distance = 0x%08x)\n",
                  addr, offset, addr - (unsigned)offset);
 #if 0
             retoff += addr;
@@ -597,13 +597,13 @@ static int test5(struct fbusb *dev, int size, int offset, const char *fname)
                 res = fbusb_bufcmd(dev, txbuff, strlen(txbuff), rxbuff, &i);
             }
 
-            PNFO("usb buff @ 0x%08x filled with 0x%016" PRIx64 ", size = 0x%08x\n",
+            PNFO("USB バッファ @ 0x%08x に 0x%016" PRIx64 " を充填, size = 0x%08x\n",
                  offset, retoff, size);
 #endif
             return 0;
         }
     }
-    PERR("LinuxLoader patching failed: %s\n", rxbuff);
+    PERR("LinuxLoader パッチ適用失敗: %s\n", rxbuff);
     return -1;
 }
 
@@ -637,7 +637,7 @@ static int cmd_download(struct fbusb *dev, int size,
     if (res == FASTBOOT_DATA) {
         res = strtoul(rxbuff, &p, 16);
         if (res != size || (p - (char *)rxbuff) != 8) {
-            PERR("cmd_download not matching download size!\n");
+            PERR("cmd_download のダウンロードサイズが一致しません!\n");
             size = res;
         }
         rspsz = 64;
@@ -648,7 +648,7 @@ static int cmd_download(struct fbusb *dev, int size,
         if (res != FASTBOOT_OKAY) {
             if (res >= 0 && rspsz >= 0 && rspsz < 64) {
                 rxbuff[rspsz] = '\0';
-                PERR("cmd_download failed: %s!\n", rxbuff);
+                PERR("cmd_download 失敗: %s!\n", rxbuff);
             }
         }
     }
@@ -830,7 +830,7 @@ static int abl_print_logbuf(struct fbusb *dev)
 
     res = strlen(logbuf + logbuf_pos);
     if (res > 0) {
-        PNFO("Print log buffer, logbuf_pos = 0x%04x, length = 0x%04x:\n",
+        PNFO("ログバッファ出力, logbuf_pos = 0x%04x, length = 0x%04x:\n",
              logbuf_pos, res);
         POUT("%s", logbuf + logbuf_pos);
         logbuf_pos += res;
@@ -895,7 +895,7 @@ static int abl_list_modules(struct fbusb *dev)
         if (res != 0)
             return -1;
     }
-    POUT("UEFI modules:\n");
+    POUT("UEFIモジュール一覧:\n");
     for (i = 0; modules[i].name[0] != '\0'; i++)
         POUT("  0x%09" PRIx64 " %s\n", modules[i].addr, modules[i].name);
 
@@ -908,11 +908,11 @@ static int test6(struct fbusb *dev, int size, int offset)
     uint64_t addr = 0;
 
     if (target->ablver == NULL) {
-        PERR("test6 failed: target not set up\n");
+        PERR("test6 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
-    PNFO("Starting test6\n");
+    PNFO("test6 開始\n");
 
     res = get_module_addr(dev, "VerifiedBootDxe", &addr);
     if (res < 0)
@@ -928,11 +928,11 @@ static int test6(struct fbusb *dev, int size, int offset)
     if (res < 0)
         goto test6_failed;
 
-    PNFO("VerifiedBootDxe @ 0x%08" PRIx64 " patched successfully\n", addr);
+    PNFO("VerifiedBootDxe @ 0x%08" PRIx64 " パッチ適用成功\n", addr);
     return 0;
 
   test6_failed:
-    PERR("VerifiedBootDxe patching failed\n");
+    PERR("VerifiedBootDxe パッチ適用失敗\n");
     return -1;
 }
 
@@ -943,11 +943,11 @@ static int test7(struct fbusb *dev, int size, int offset)
     uint64_t addr;
 
     if (target->ablver == NULL) {
-        PERR("test7 failed: target not set up\n");
+        PERR("test7 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
-    PNFO("Starting test7\n");
+    PNFO("test7 開始\n");
 
     res = get_module_addr(dev, "LinuxLoader", &addr);
     if (res < 0)
@@ -967,11 +967,11 @@ static int test7(struct fbusb *dev, int size, int offset)
     if (res < 0)
         goto test7_failed;
 
-    PNFO("LinuxLoader @ 0x%08" PRIx64 " patched to fake unlock\n", addr);
+    PNFO("LinuxLoader @ 0x%08" PRIx64 " 偽アンロックにパッチ適用\n", addr);
     return 0;
 
   test7_failed:
-    PERR("LinuxLoader @ 0x%08" PRIx64 " patching failed\n", addr);
+    PERR("LinuxLoader @ 0x%08" PRIx64 " パッチ適用失敗\n", addr);
     return -1;
 }
 
@@ -983,17 +983,17 @@ static int test8(struct fbusb *dev, int size, int offset, const char *arg)
     uint64_t addr;
 
     if (target->ablver == NULL) {
-        PERR("test8 failed: target not set up\n");
+        PERR("test8 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
     if (size < 0 || size >= sizeof(kibuff)) {
-        PERR("test8 needs two kernel images\n");
+        PERR("test8 には2つのカーネルイメージが必要です\n");
         return -1;
     }
     memcpy(kibuff, buffer, size);
 
-    PNFO("Starting test8\n");
+    PNFO("test8 開始\n");
 
     res = file_rd_buff(arg, kibuff + size + 8, sizeof(kibuff) - size - 16);
     if (res < 0)
@@ -1023,33 +1023,33 @@ static int test8(struct fbusb *dev, int size, int offset, const char *arg)
     if (res < 0)
         goto test8_failed;
 
-    PNFO("LinuxLoader @ 0x%08" PRIx64 " patched for test8\n", addr);
+    PNFO("LinuxLoader @ 0x%08" PRIx64 " test8 用にパッチ適用\n", addr);
 #else
     if (abl_patch_ext > 2)
-        PNFO("LinuxLoader @ 0x%08" PRIx64 " already patched for test8\n", addr);
+        PNFO("LinuxLoader @ 0x%08" PRIx64 " test8 用パッチ適用済み\n", addr);
     else
-        PNFO("LinuxLoader @ 0x%08" PRIx64 " is NOT patched for test8!\n", addr);
+        PNFO("LinuxLoader @ 0x%08" PRIx64 " test8 用パッチ未適用!\n", addr);
 #endif
 
     fbusb_set_timeout(dev, 30 * 1000);
 
     res = cmd_download(dev, size, kibuff, 0);
     if (res != FASTBOOT_OKAY) {
-        PERR("test8 upload of kernel images failed\n");
+        PERR("test8 カーネルイメージのアップロード失敗\n");
         return -1;
     }
 
     res = fbusb_strcmd(dev, "boot", rxbuff, 65);
     if (res != FASTBOOT_OKAY) {
-        PERR("test8 boot command failed\n");
+        PERR("test8 ブートコマンド失敗\n");
         return -1;
     }
 
-    PNFO("test8 succeeded\n", addr);
+    PNFO("test8 成功\n", addr);
     return 0;
 
   test8_failed:
-    PERR("test8 failed\n");
+    PERR("test8 失敗\n");
     return -1;
 }
 
@@ -1059,11 +1059,11 @@ static int test9(struct fbusb *dev, int size, int offset)
     uint64_t addr = 0;
 
     if (target->ablver == NULL) {
-        PERR("test9 failed: target not set up\n");
+        PERR("test9 失敗: ターゲットが設定されていません\n");
         return -1;
     }
 
-    PNFO("Starting test9\n");
+    PNFO("test9 開始\n");
 
     res = get_module_addr(dev, "VerifiedBootDxe", &addr);
     if (res < 0)
@@ -1079,11 +1079,11 @@ static int test9(struct fbusb *dev, int size, int offset)
     if (res < 0)
         goto test9_failed;
 
-    PNFO("VerifiedBootDxe @ 0x%08" PRIx64 " patched with test9\n", addr);
+    PNFO("VerifiedBootDxe @ 0x%08" PRIx64 " test9 でパッチ適用\n", addr);
     return 0;
 
   test9_failed:
-    PERR("VerifiedBootDxe patching failed\n");
+    PERR("VerifiedBootDxe パッチ適用失敗\n");
     return -1;
 }
 
@@ -1091,10 +1091,10 @@ static int test9(struct fbusb *dev, int size, int offset)
 static void show_help(void)
 {
     puts("");
-    puts("xperable - Xperia ABL fastboot Exploit");
+    puts("xperable - Xperia ABL fastboot エクスプロイト");
     puts("(  https://github.com/j4nn/xperable  )");
     puts("");
-    puts("usage: ./xperable [-h] [-v] [-q] [-V] [-Q] [-A] [-B] [-U]");
+    puts("使用法: ./xperable [-h] [-v] [-q] [-V] [-Q] [-A] [-B] [-U]");
     puts("                  [-b maxsize] [-t timeout] [-o offset] [-s size]");
     puts("                  [-c command] [-x] [-0] [-1] [-2] [-3] [-4]");
     puts("                  [-5] [-6] [-7] [-8] [-9] [-C cmdline]");
@@ -1102,53 +1102,53 @@ static void show_help(void)
     puts("                  [-r] [-O file] [-I file] [-w]");
     puts("                  [-P file] [-p patch]");
     puts("");
-    puts("  -h            show this help and exit");
-    puts("  -v            increase fastboot usb communication verbosity");
-    puts("  -q            lower fastboot usb communication verbosity");
-    puts("  -V            increase verbosity of the exploit itself");
-    puts("  -Q            lower verbosity of the exploit");
-    puts("  -A            do 'fastboot getvar all' with filtered output");
-    puts("  -B            do 'fastboot getvar version-bootloader' command");
-    puts("  -U            do 'fastboot getvar unknown' command");
-    puts("  -b maxsize    set usb chunk max size to use with all transfers");
-    puts("  -t timeout    set usb transfer timeout in ms, 5000 by default");
-    puts("  -o offset     set offset parameter used in exploit test cases");
-    puts("  -s size       set size parameter used with other options");
-    puts("  -c command    set fastboot command string");
-    puts("  -x            use extended version of abl patch");
-    puts("  -0            basic test case to try to crash ABL LinuxLoader");
-    puts("  -1            do previously set fastboot command");
-    puts("  -2            try to return buffer offset distance to code hit");
-    puts("  -3            similar as -2 option but using alternative method");
-    puts("  -4            do full ABL LinuxLoader patching exploit");
-    puts("  -5            similar as -4 option but using alternative method");
-    puts("  -6            patch signature verification in VerifiedBootDxe");
-    puts("  -7            fake unlock via 'green' -> 'orange' in kcmdline");
-    puts("  -8            patch boot command to use two kernel images");
-    puts("  -9            experimental stuff to test patch level override");
-    puts("  -l            read out bootloader log from RAM, needs -4/-5 first");
-    puts("  -m            list XBL UEFI modules with their base addresses");
-    puts("  -a addr       set address used with BL RAM read and write options");
-    puts("  -M module     set address for RAM r/w to base addr of UEFI module");
-    puts("  -r            read 'size' block of bytes from 'addr' base in BL");
-    puts("  -O file       write 'size' of bytes from tool's buffer to 'file'");
-    puts("  -I file       read 'file' into tool's buffer setting 'size' too");
-    puts("  -w            write 'size' block of bytes to 'addr' base in BL");
-    puts("  -P file       load PE file to tool's buffer doing relocation");
-    puts("                to 'addr' base, setting 'size' to code boundary,");
-    puts("                applying -4/-5 patch in case of LinuxLoader fname");
-    puts("  -p patch      apply specified 'patch' sequence to tool's buffer");
+    puts("  -h            このヘルプを表示して終了");
+    puts("  -v            fastboot USB通信の詳細出力を増やす");
+    puts("  -q            fastboot USB通信の詳細出力を減らす");
+    puts("  -V            エクスプロイト自体の詳細出力を増やす");
+    puts("  -Q            エクスプロイトの詳細出力を減らす");
+    puts("  -A            フィルタ出力で 'fastboot getvar all' を実行");
+    puts("  -B            'fastboot getvar version-bootloader' コマンドを実行");
+    puts("  -U            'fastboot getvar unknown' コマンドを実行");
+    puts("  -b maxsize    全転送で使用するUSBチャンク最大サイズを設定");
+    puts("  -t timeout    USB転送タイムアウトをミリ秒で設定（デフォルト: 5000）");
+    puts("  -o offset     エクスプロイトテストケースで使用するオフセットを設定");
+    puts("  -s size       他のオプションで使用するサイズを設定");
+    puts("  -c command    fastbootコマンド文字列を設定");
+    puts("  -x            ABLパッチの拡張版を使用");
+    puts("  -0            ABL LinuxLoaderをクラッシュさせる基本テストケース");
+    puts("  -1            設定済みfastbootコマンドを実行");
+    puts("  -2            コードヒットまでのバッファオフセット距離を返す試み");
+    puts("  -3            -2オプションと同様だが代替手法を使用");
+    puts("  -4            ABL LinuxLoader完全パッチエクスプロイトを実行");
+    puts("  -5            -4オプションと同様だが代替手法を使用");
+    puts("  -6            VerifiedBootDxeの署名検証をパッチ");
+    puts("  -7            kcmdlineで 'green' -> 'orange' による偽アンロック");
+    puts("  -8            ブートコマンドを2つのカーネルイメージ使用にパッチ");
+    puts("  -9            パッチレベルオーバーライドのテスト（実験的）");
+    puts("  -l            RAMからブートローダーログを読み出し（-4/-5が先に必要）");
+    puts("  -m            XBL UEFIモジュールをベースアドレス付きで一覧表示");
+    puts("  -a addr       BL RAMの読み書きオプションで使用するアドレスを設定");
+    puts("  -M module     UEFIモジュールのベースアドレスをRAM読み書きアドレスに設定");
+    puts("  -r            BL内の 'addr' から 'size' バイトを読み出し");
+    puts("  -O file       ツールバッファから 'size' バイトを 'file' に書き込み");
+    puts("  -I file       'file' をツールバッファに読み込み 'size' も設定");
+    puts("  -w            BL内の 'addr' に 'size' バイトを書き込み");
+    puts("  -P file       PEファイルをツールバッファに読み込みリロケーション実行");
+    puts("                'addr' ベースに設定、'size' をコード境界に設定、");
+    puts("                LinuxLoaderファイル名の場合は-4/-5パッチを適用");
+    puts("  -p patch      指定した 'patch' シーケンスをツールバッファに適用");
     puts("");
-    puts("'patch' is one or more 'subpatch' delimited by comma character");
-    puts("'subpatch' is 'hexoffs' 'patchseq' pair delimited by one of ':/%@'");
-    puts("characters specifying size or form of each element of 'patchseq'");
-    puts("'patchseq' is list of hex values delimited by comma character");
+    puts("'patch' はコンマで区切られた1つ以上の 'subpatch' で構成");
+    puts("'subpatch' は ':/%@' のいずれかで区切られた 'hexoffs' と 'patchseq' のペア");
+    puts("それぞれの文字は 'patchseq' 各要素のサイズまたは形式を指定");
+    puts("'patchseq' はコンマで区切られた16進値のリスト");
     puts("");
-    puts("There is following meaning of 'hexoffs' and 'patchseq' delimiter:");
-    puts("  :             'patchseq' hex values are byte values");
-    puts("  /             'patchseq' hex values are 32 bit values");
-    puts("  %             'patchseq' hex values are 32 bit to be byte swapped");
-    puts("  @             'patchseq' hex values are 64 bit values");
+    puts("'hexoffs' と 'patchseq' 区切り文字の意味:");
+    puts("  :             'patchseq' の16進値はバイト値");
+    puts("  /             'patchseq' の16進値は32ビット値");
+    puts("  %             'patchseq' の16進値はバイトスワップされる32ビット値");
+    puts("  @             'patchseq' の16進値は64ビット値");
     puts("");
 }
 
@@ -1272,11 +1272,11 @@ int main(int argc, char **argv)
                 if (abl_patch_ext > 1)
                     size = res;
                 target->patch_abl(buffer, abl_patch_ext);
-                PNFO("Loaded %s (res=%d, size=%d), applied LinuxLoader %s"
-                     "patch\n", argv[0], res, size,
+                PNFO("%s を読み込み (res=%d, size=%d), LinuxLoader %s"
+                     "パッチを適用\n", argv[0], res, size,
                      abl_patch_ext ? "ext " : "");
             } else
-                PNFO("Loaded %s (res=%d, size=%d)\n", argv[0], res, size);
+                PNFO("%s を読み込み (res=%d, size=%d)\n", argv[0], res, size);
             break;
         }
         if (res < 0)

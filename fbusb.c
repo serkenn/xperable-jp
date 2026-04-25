@@ -53,13 +53,13 @@ struct fbusb *fbusb_init(int vid, int pid, int iface, int epi, int epo)
 
     res = libusb_init(NULL);
     if (res < 0) {
-        PERR("libusb_init failed: %s\n", libusb_strerror(res));
+        PERR("libusb_init 失敗: %s\n", libusb_strerror(res));
         return NULL;
     }
 
     h = libusb_open_device_with_vid_pid(NULL, vid, pid);
     if (h == NULL) {
-        PERR("libusb_open_device_with_vid_pid (%04x:%04x) failed\n",
+        PERR("libusb_open_device_with_vid_pid (%04x:%04x) 失敗\n",
                vid, pid);
         goto err_exit1;
     }
@@ -67,7 +67,7 @@ struct fbusb *fbusb_init(int vid, int pid, int iface, int epi, int epo)
 #if !defined(__APPLE__)
     if (libusb_kernel_driver_active(h, 0) == 1) {
         if (libusb_detach_kernel_driver(h, 0) != 0) {
-            PERR("libusb_detach_kernel_driver failed\n");
+            PERR("libusb_detach_kernel_driver 失敗\n");
             goto err_exit2;
         }
     }
@@ -75,7 +75,7 @@ struct fbusb *fbusb_init(int vid, int pid, int iface, int epi, int epo)
 
     res = libusb_claim_interface(h, iface);
     if (res < 0) {
-        PERR("libusb_claim_interface failed: %s\n", libusb_strerror(res));
+        PERR("libusb_claim_interface 失敗: %s\n", libusb_strerror(res));
         goto err_exit2;
     }
 
@@ -192,7 +192,7 @@ static int fbusb_transfer(struct fbusb *dev, void *buff, int size, int ep)
         fbusb_log(dev, ep, buff + idx, len, done, res);
 
         if (res != 0 && transferred == 0) {
-            PERR("libusb_bulk_transfer failed: %s ep=0x%02x "
+            PERR("libusb_bulk_transfer 失敗: %s ep=0x%02x "
                  "len=0x%04x size=0x%04x\n",
                  libusb_strerror(res), ep, len, size);
             return -1;
@@ -232,18 +232,18 @@ int fbusb_bufcmd_resp(struct fbusb *dev, void *rsp, int *rspsz)
             *rspsz = received;
             return res;
         }
-        PDBG("fbusb_bufcmd_resp recv unknown fastboot response: "
+        PDBG("fbusb_bufcmd_resp 不明なfastbootレスポンスを受信: "
              "'%c%c%c%c' (rspsz=0x%04x received=0x%04x)\n",
              s[0], s[1], s[2], s[3], *rspsz, received);
         *rspsz = received;
         return FASTBOOT_UNKNOWN;
     }
     if (received < 0) {
-        PERR("fbusb_bufcmd_resp recv failed (rspsz=0x%04x)\n", *rspsz);
+        PERR("fbusb_bufcmd_resp 受信失敗 (rspsz=0x%04x)\n", *rspsz);
         *rspsz = 0;
         return received;
     }
-    PERR("fbusb_bufcmd_resp recv invalid fastboot response: "
+    PERR("fbusb_bufcmd_resp 無効なfastbootレスポンスを受信: "
          "received=0x%04x (rspsz=0x%04x)\n", received, *rspsz);
     *rspsz = received;
     return FASTBOOT_UNKNOWN;
@@ -255,11 +255,11 @@ int fbusb_bufcmd(struct fbusb *dev, void *req, int reqsz, void *rsp, int *rspsz)
     if (res != reqsz) {
         *rspsz = 0;
         if (res > 0) {
-            PERR("fbusb_bufcmd send incomplete: "
+            PERR("fbusb_bufcmd 送信不完全: "
                  "reqsz=0x%02x res=0x%04x\n", reqsz, res);
             return -1;
         }
-        PERR("fbusb_bufcmd send failed: reqsz=0x%02x res=0x%04x\n", reqsz, res);
+        PERR("fbusb_bufcmd 送信失敗: reqsz=0x%02x res=0x%04x\n", reqsz, res);
         return -1;
     }
     return fbusb_bufcmd_resp(dev, rsp, rspsz);
@@ -271,11 +271,11 @@ int fbusb_bufrcv(struct fbusb *dev, void *rcv, int rcvsz, void *rsp, int *rspsz)
     if (res != rcvsz) {
         *rspsz = 0;
         if (res > 0) {
-            PDBG("fbusb_bufrcv recv incomplete: rcvsz=0x%02x res=0x%04x\n",
+            PDBG("fbusb_bufrcv 受信不完全: rcvsz=0x%02x res=0x%04x\n",
                  rcvsz, res);
             return -1;
         }
-        PERR("fbusb_bufrcv recv failed: rcvsz=0x%02x res=0x%04x\n", rcvsz, res);
+        PERR("fbusb_bufrcv 受信失敗: rcvsz=0x%02x res=0x%04x\n", rcvsz, res);
         return -1;
     }
     return fbusb_bufcmd_resp(dev, rsp, rspsz);

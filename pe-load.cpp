@@ -120,7 +120,7 @@ int load_pe(const char *fname, void *buff, int maxsize, uint64_t base_va,
 
     FILE *f = fopen(fname, "rb");
     if (f == NULL) {
-        PRNO("fopen pe %s", fname);
+        PRNO("PE ファイルオープン失敗 %s", fname);
         return -1;
     }
     res = fread(buff, 1, maxsize, f);
@@ -129,7 +129,7 @@ int load_pe(const char *fname, void *buff, int maxsize, uint64_t base_va,
     parsed_pe *p = ParsePEFromFile(fname);
 
     if (p == nullptr) {
-        PERR("load_pe of %s failed: %s\n", fname, GetPEErrString().c_str());
+        PERR("load_pe の %s 失敗: %s\n", fname, GetPEErrString().c_str());
         return -1;
      }
 
@@ -146,7 +146,7 @@ int load_pe(const char *fname, void *buff, int maxsize, uint64_t base_va,
     if (code_boundary != NULL) {
         *code_boundary = 0;
         IterSec(p, find_code_boundary, code_boundary);
-        PDBG("Code boundary of %s is 0x%08x\n", fname, *code_boundary);
+        PDBG("%s のコード境界: 0x%08x\n", fname, *code_boundary);
     }
 
     res = p->peHeader.nt.OptionalHeader64.SizeOfImage;
